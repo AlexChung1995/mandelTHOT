@@ -14,36 +14,59 @@
 // 2darray[i, j] = 1darray [width * j + i]
 // 2darray[2, 1] = 1darray [4 * 1 + 2]
 
+pub struct TwoDArray<T: Copy> {
+    pub data: Box<[T]>,
+    height: usize,
+    width: usize,
+}
 
-
-    pub struct TwoDArray<T: Copy> {
-        pub data: Box<[T]>,
-        height: usize,
-        width: usize,
-    }
-
-    impl<T: Copy> TwoDArray<T> {
-        pub fn new(height: usize, width: usize, initial_val: T) -> TwoDArray<T> {
-            let vec: Vec<T> = vec![initial_val; height * width];
-            return TwoDArray {
-                height: height,
-                width: width,
-                data: vec.into_boxed_slice(),
-            }
-        }
-
-        pub fn index(&self, i: usize, j: usize) -> usize {
-            return j * self.width + i;
-        }
-
-        pub fn get(&self, i: usize, j: usize) -> T {
-            let index = self.index(i, j);
-            return self.data[index];
-        }
-
-        pub fn set(&mut self, i: usize, j: usize, val: T) {
-            let index = self.index(i, j);
-            self.data[index] = val;
+impl<T: Copy> TwoDArray<T> {
+    pub fn new(height: usize, width: usize, initial_val: T) -> TwoDArray<T> {
+        let vec: Vec<T> = vec![initial_val; height * width];
+        TwoDArray {
+            height: height,
+            width: width,
+            data: vec.into_boxed_slice(),
         }
     }
 
+    pub fn index(&self, i: usize, j: usize) -> Option<usize> {
+        if i >= self.height || j >= self.width {
+            return None;
+        }
+        Some(i * self.width + j)
+    }
+
+    pub fn get(&self, i: usize, j: usize) -> Option<T> {
+        self.index(i, j).map(|idx| self.data[idx])
+    }
+
+    pub fn set(&mut self, i: usize, j: usize, val: T) {
+        if let Some(idx) = self.index(i, j) {
+            self.data[idx] = val;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_2d_array() {
+        let width = 10;
+        let height = 10;
+        let mut matrix: TwoDArray<i32> = TwoDArray::new(width, height, 0);
+
+        // test index math
+        assert_eq!(matrix.index(2, 0), Some(20));
+
+        // test set/get
+        matrix.set(4, 5, 42);
+        assert_eq!(matrix.get(4, 5), Some(42));
+
+        // test out of bounds
+        assert_eq!(matrix.get(25, 25), None);
+        assert_eq!(matrix.index(25, 25), None);
+    }
+}
