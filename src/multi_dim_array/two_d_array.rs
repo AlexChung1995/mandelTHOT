@@ -16,8 +16,8 @@
 
 pub struct TwoDArray<T: Copy> {
     pub data: Box<[T]>,
-    height: usize,
-    width: usize,
+    pub height: usize,
+    pub width: usize,
 }
 
 impl<T: Copy> TwoDArray<T> {
@@ -30,6 +30,8 @@ impl<T: Copy> TwoDArray<T> {
         }
     }
 
+    // i is y axis
+    // j is x axis
     pub fn index(&self, i: usize, j: usize) -> Option<usize> {
         if i >= self.height || j >= self.width {
             return None;
